@@ -1,0 +1,65 @@
+########################################################################
+# 1) Editor / IDE cruft
+########################################################################
+# JetBrains IDEA, VS Code, Sourcegraph, macOS Finder
+.idea/
+.vscode/
+*.iml
+.idea/.sourcegraph/
+.DS_Store
+
+########################################################################
+# 2) Python build & execution artefacts
+########################################################################
+# Compiled byte‑code, test cache, setuptools output
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.egg-info/
+*.eggs/
+dist/
+build/
+pip-wheel-metadata/
+*.pytest_cache/
+
+########################################################################
+# 3) Virtual‑environment & package managers
+########################################################################
+.venv/
+venv/
+env/
+# Poetry / pipenv lockfiles (keep *.toml if you use them)
+poetry.lock
+Pipfile.lock
+
+########################################################################
+# 4) Data & results (large, regenerated, or proprietary)
+########################################################################
+# Raw census downloads, processed pickles, intermediate CSVs
+data/processed/
+results/
+*.pkl
+*.csv
+*.parquet
+*.jsonl
+# Streamlit session state & cache
+.streamlit/
+
+########################################################################
+# 5) Container & deployment artefacts
+########################################################################
+# Keep the Dockerfile, ignore local‑build fluff
+*.tar
+*.log
+.cache/
+
+########################################################################
+# 6) OS‑specific junk & backups
+########################################################################
+Thumbs.db
+ehthumbs.db
+*~
+*.swp
+*.swo

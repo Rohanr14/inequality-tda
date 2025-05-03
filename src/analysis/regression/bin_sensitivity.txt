@@ -1,0 +1,1 @@
+Pearson correlation between 101‑pt and 201‑pt real‑$ gaps: 1.0000
