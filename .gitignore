@@ -1,7 +1,7 @@
 ########################################################################
 # 1) Editor / IDE cruft
 ########################################################################
-# JetBrains IDEA, VS Code, Sourcegraph, macOS Finder
+# JetBrains IDEA, VS Code, Sourcegraph, macOS Finder
 .idea/
 .vscode/
 *.iml
