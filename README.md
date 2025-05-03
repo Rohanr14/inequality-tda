@@ -81,7 +81,7 @@ The project includes:
 
 2.  **Clone Repository:**
     ```bash
-    git clone [https://github.com/Rohanr14/inequality-tda.git](https://github.com/Rohanr14/inequality-tda.git) # Replace with your actual repo URL if different
+    git clone https://github.com/Rohanr14/inequality-tda.git
     cd inequality-tda
     ```
 
