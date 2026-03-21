@@ -1,0 +1,26 @@
+======================================================================
+GENUINE TDA: Multivariate Persistence Diagrams (GUDHI)
+======================================================================
+Features used: ['acs_longest_h0_lifespan_real', 'acs_birth_percentile', 'gini', 'theil', 'acs_birth_income_real', 'acs_death_income_real']
+Years analysed: 2010–2023
+
+  2010: H₀ features= 50, H₁ features=  8  | H₁ max lifespan=0.185
+  2011: H₀ features= 50, H₁ features=  3  | H₁ max lifespan=0.107
+  2012: H₀ features= 50, H₁ features=  5  | H₁ max lifespan=0.144
+  2013: H₀ features= 50, H₁ features=  9  | H₁ max lifespan=0.084
+  2014: H₀ features= 50, H₁ features=  6  | H₁ max lifespan=0.199
+  2015: H₀ features= 50, H₁ features=  7  | H₁ max lifespan=0.081
+  2016: H₀ features= 50, H₁ features=  2  | H₁ max lifespan=0.101
+  2017: H₀ features= 50, H₁ features=  6  | H₁ max lifespan=0.045
+  2018: H₀ features= 50, H₁ features=  7  | H₁ max lifespan=0.084
+  2019: H₀ features= 50, H₁ features=  4  | H₁ max lifespan=0.165
+  2020: H₀ features= 50, H₁ features=  7  | H₁ max lifespan=0.138
+  2021: H₀ features= 50, H₁ features=  6  | H₁ max lifespan=0.130
+  2022: H₀ features= 50, H₁ features=  4  | H₁ max lifespan=0.160
+  2023: H₀ features= 50, H₁ features=  4  | H₁ max lifespan=0.107
+
+--- Pairwise Wasserstein-1 Distances (H₁ diagrams) ---
+  (see heatmap plot for visual; selected pairs below)
+  Mean W₁ between years 1 apart: 0.2489
+  Mean W₁ between years 5 apart: 0.2344
+  Mean W₁ between years 10 apart: 0.2421

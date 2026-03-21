@@ -84,15 +84,53 @@ def fetch_acs_data(year: int) -> Optional[pd.DataFrame]:
         print(f"Error processing ACS data for year {year}: {e}")
         return None
 
-def load_cpi(path: str = "../data/raw/cpi-u_annual.csv") -> pd.DataFrame:
+def load_cpi(path: str = None) -> pd.DataFrame:
+    if path is None:
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "data", "raw", "cpi-u_annual.csv")
     cpi = pd.read_csv(path)
     base = cpi.loc[cpi.year == 2024, "cpi-u"].iat[0]
     cpi["deflator"] = base / cpi["cpi-u"]      # >1 → inflates older $ to 2024 $
     return cpi[["year", "deflator"]]
 
+def _estimate_pareto_alpha(frac_above_lower: float, frac_above_upper: float,
+                           lower_bound: float, upper_bound: float) -> float:
+    """
+    Estimate Pareto shape parameter α from two survival fractions.
+
+    Given that fraction f₁ of households earn above `lower_bound` and fraction
+    f₂ earn above `upper_bound`, the Pareto α satisfies:
+        f₂/f₁ = (lower_bound / upper_bound)^α
+    so  α = log(f₁/f₂) / log(upper_bound/lower_bound).
+
+    Falls back to α = 1.5 (a reasonable US income default) if the estimate
+    is out of the plausible range [1.2, 5.0].
+    """
+    DEFAULT_ALPHA = 1.5
+    if frac_above_lower <= 0 or frac_above_upper <= 0:
+        return DEFAULT_ALPHA
+    if frac_above_upper >= frac_above_lower:
+        return DEFAULT_ALPHA
+    ratio = np.log(frac_above_lower / frac_above_upper)
+    denom = np.log(upper_bound / lower_bound)
+    if denom <= 0:
+        return DEFAULT_ALPHA
+    alpha = ratio / denom
+    if not (1.2 <= alpha <= 5.0):
+        return DEFAULT_ALPHA
+    return alpha
+
+
 def _calculate_percentiles_from_brackets(row: pd.Series, num_percentiles: int) -> Optional[np.ndarray]:
     """
-    Internal helper function to calculate income percentiles from ACS bracket counts.
+    Calculate income percentiles from ACS bracket counts, using a Pareto tail
+    fit for the open-ended top bracket ($200k+) instead of capping.
+
+    The Pareto Type I distribution is the standard approach in economics for
+    modelling open-ended upper income brackets (Piketty & Saez, 2003).  Given
+    the fraction of households above the two highest finite thresholds ($150k
+    and $200k), we estimate the Pareto shape parameter α and use the quantile
+    function Q(p) = x_m / (1 − p)^(1/α) for percentiles in the tail.
 
     Args:
         row: A pandas Series representing a single state's ACS data for one year.
@@ -108,7 +146,6 @@ def _calculate_percentiles_from_brackets(row: pd.Series, num_percentiles: int) -
 
         # Check for NaNs or zero total - cannot compute if counts are invalid
         if bracket_counts.isnull().any() or bracket_counts.sum() <= 0:
-            # print(f"Warning: Invalid bracket counts for state {row.get('NAME', 'Unknown')}. Skipping percentile calculation.")
             return None
 
         # Define bracket bounds (use 0 as the lower bound for the first bracket)
@@ -116,34 +153,34 @@ def _calculate_percentiles_from_brackets(row: pd.Series, num_percentiles: int) -
 
         # Calculate cumulative counts and percentages
         cumulative_counts = bracket_counts.cumsum()
-        total_households = cumulative_counts.iloc[-1] # Total count is the cumulative sum of the last bracket used
+        total_households = float(cumulative_counts.iloc[-1])
 
         # Cumulative percentages *at the upper bound* of each bracket
-        # The percentage of households BELOW the upper bound of bracket i
         cumulative_percentages = (cumulative_counts / total_households) * 100
 
-        # Define the percentile levels we want to find income for (e.g., 0, 1, 2, ..., 100)
-        target_percentiles = np.linspace(0, 100, num_percentiles)
+        # ── Pareto tail estimation ──────────────────────────────────────────
+        # Fraction of households above $150k and $200k thresholds
+        # B19001_015E → ≤$150k (cumulative through that bracket)
+        # B19001_016E → ≤$200k
+        # B19001_017E → >$200k (open-ended)
+        cum_below_150k = float(cumulative_counts.iloc[-3])   # through $150k bracket
+        cum_below_200k = float(cumulative_counts.iloc[-2])   # through $200k bracket
+        frac_above_150k = (total_households - cum_below_150k) / total_households
+        frac_above_200k = (total_households - cum_below_200k) / total_households
 
-        # Prepare data points for interpolation: (cumulative_percentage, income_upper_bound)
-        # Start with (0 percentile, $0 income)
-        interp_percentiles = np.array([0] + list(cumulative_percentages))
-        interp_incomes = np.array(bounds[:-1] + [bounds[-2]]) # Use upper bound of second-to-last bracket for last point
+        x_m = 200_000.0  # Pareto threshold (top bracket lower bound)
+        alpha = _estimate_pareto_alpha(frac_above_150k, frac_above_200k,
+                                       150_000.0, 200_000.0)
 
-        # Handle the open-ended top bracket ($200k+) - cap interpolation before it.
-        # We won't extrapolate into the top bracket for simplicity.
-        # Find the index of the last finite bound
-        last_finite_idx = -1
-        while last_finite_idx >= -len(bounds) and not np.isfinite(bounds[last_finite_idx]):
-             last_finite_idx -=1
+        # Percentile where the Pareto tail begins (CDF at $200k)
+        pct_at_xm = float(cumulative_percentages.iloc[-2])  # % ≤ $200k
 
-        if last_finite_idx < -1 : # Only use data up to the last finite bound
-            interp_percentiles = interp_percentiles[:last_finite_idx+1]
-            interp_incomes = interp_incomes[:last_finite_idx+1]
-            # Cap target percentiles at the max cumulative percentage we have data for
-            max_interp_percentile = interp_percentiles[-1]
-            target_percentiles = np.clip(target_percentiles, 0, max_interp_percentile)
-
+        # ── Build interpolation points for the non-tail portion ─────────────
+        # Use all finite brackets (up to and including $200k)
+        finite_bounds = [b for b in bounds if np.isfinite(b)]
+        n_finite = len(finite_bounds)
+        interp_percentiles = np.array([0.0] + list(cumulative_percentages.iloc[:n_finite - 1]))
+        interp_incomes = np.array(finite_bounds[:n_finite])
 
         # Ensure percentile values are strictly increasing for interpolation
         unique_indices = np.unique(interp_percentiles, return_index=True)[1]
@@ -151,13 +188,23 @@ def _calculate_percentiles_from_brackets(row: pd.Series, num_percentiles: int) -
         interp_incomes = interp_incomes[unique_indices]
 
         if len(interp_percentiles) < 2:
-             # print(f"Warning: Not enough data points for interpolation for state {row.get('NAME', 'Unknown')}.")
-             return None
+            return None
 
+        # ── Interpolate across all target percentiles ───────────────────────
+        target_percentiles = np.linspace(0, 100, num_percentiles)
+        income_percentiles = np.empty(num_percentiles)
 
-        # Perform linear interpolation
-        # np.interp(x_new, x_observed, y_observed)
-        income_percentiles = np.interp(target_percentiles, interp_percentiles, interp_incomes)
+        for i, p in enumerate(target_percentiles):
+            if p <= pct_at_xm:
+                # Below the Pareto threshold → linear interpolation
+                income_percentiles[i] = np.interp(p, interp_percentiles, interp_incomes)
+            else:
+                # Pareto tail: Q(p) = x_m / (1 − p_tail)^(1/α)
+                # p_tail is the fraction *within the tail* (0 at x_m, 1 at ∞)
+                tail_fraction = (p - pct_at_xm) / (100.0 - pct_at_xm)
+                # Clip to avoid division by zero at the very top
+                tail_fraction = min(tail_fraction, 0.999)
+                income_percentiles[i] = x_m / ((1.0 - tail_fraction) ** (1.0 / alpha))
 
         return income_percentiles
 

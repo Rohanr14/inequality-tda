@@ -10,8 +10,9 @@ from statsmodels.tools.sm_exceptions import ValueWarning
 warnings.filterwarnings("ignore", category=ValueWarning)
 
 RESOLUTION = 101
-TIMESERIES_PATH = f"../../results/timeseries/h0_gap_details_{RESOLUTION}pts_timeseries.csv"
-OUT_DIR = Path("regression")
+BASE = Path(__file__).resolve().parent.parent.parent
+TIMESERIES_PATH = BASE / "results" / "timeseries" / f"h0_gap_details_{RESOLUTION}pts_timeseries.csv"
+OUT_DIR = Path(__file__).resolve().parent / "regression"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 1. Load data

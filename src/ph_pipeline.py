@@ -209,7 +209,7 @@ def run_ph_analysis_for_year(
             # Include Gini coefficient and Theil index for ACS data comparison
             vec = acs_vector.astype(float)
             mean = vec.mean()
-            gini = 1 - 2 * np.trapz(np.cumsum(vec) / vec.sum(), dx=1 / len(vec))
+            gini = 1 - 2 * np.trapezoid(np.cumsum(vec) / vec.sum(), dx=1 / len(vec))
             mask = vec > 0  # ignore zero-income entries
             vals = vec[mask] / mean
             theil = (vals * np.log(vals)).mean()
