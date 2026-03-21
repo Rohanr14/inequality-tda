@@ -35,4 +35,18 @@ regression:
 sens:
 	$(PIP_ACT) && $(RUN) -m analysis.bin_sensitivity
 
+mobility:
+	$(PIP_ACT) && $(RUN) -m analysis.mobility_validation
+
+tda:
+	$(PIP_ACT) && $(RUN) -m analysis.genuine_tda
+
+wasserstein:
+	$(PIP_ACT) && $(RUN) -m analysis.wasserstein_analysis
+
+mapper:
+	$(PIP_ACT) && $(RUN) -m analysis.mapper_graph
+
+advanced: mobility tda wasserstein mapper
+
 demo: env process analyse plots dashboard
