@@ -41,7 +41,11 @@ The project includes:
 │   ├── analysis/
 │   │   ├── regression/              # Regression outputs (generated)
 │   │   ├── bin_sensitivity.py
-│   │   └── fixed_effects.py
+│   │   ├── fixed_effects.py
+│   │   ├── mobility_validation.py   # Chetty mobility cross-validation
+│   │   ├── genuine_tda.py           # Multivariate persistent homology (GUDHI)
+│   │   ├── wasserstein_analysis.py  # Distributional distance analysis
+│   │   └── mapper_graph.py          # Mapper graph topology
 │   ├── dashboard/
 │   │   └── app.py                   # Streamlit dashboard code
 │   ├── data_loader.py               # Fetches and processes ACS data
@@ -60,16 +64,28 @@ The project includes:
 
 * **ACS Income Data:** US Census Bureau, American Community Survey (ACS) 1-Year Estimates (Table B19001: Household Income). Fetched via Census API using `src/data_loader.py`. Covers years 2010-2023 (excluding potential data gaps). Processed into 101-point percentile vectors (0th-100th percentile).
 * **CPI Data:** `data/raw/cpi-u_annual.csv` contains annual average CPI-U values used to deflate nominal income figures to real 2024 dollars.
+* **Mobility Data:** `data/raw/chetty_mobility_by_state.csv` contains state-level absolute upward mobility estimates from Chetty, Hendren, Kline & Saez (2014), used for cross-validation of the H₀ gap metric.
 * **Output Time Series:** `results/timeseries/h0_gap_details_101pts_timeseries.csv` is the main output file, containing state-year level data on the H₀ gap, its location, confidence intervals, Gini/Theil indices, and real dollar values.
 * **GeoJSON:** `us-states.json` (provided, source: US Atlas TopoJSON) is used for mapping in the dashboard.
 
 ## Methodology
 
+### Core Pipeline
 1.  **Percentile Interpolation:** ACS income bracket data (B19001) is linearly interpolated to estimate income levels at 101 percentile points (0 to 100).
 2.  **H₀ Gap Calculation:** For each state-year's 1D income percentile vector, the largest absolute dollar difference between adjacent percentiles is identified. This corresponds to the longest-lived finite H₀ feature in the Vietoris-Rips filtration of the 1D point cloud.
 3.  **Inflation Adjustment:** Nominal dollar values (gap size, birth/death income) are adjusted to real 2024 dollars using the provided CPI-U data.
 4.  **Comparison Metrics:** Gini and Theil indices are calculated from the percentile vectors for comparison.
 5.  **Robustness:** Sensitivity to binning resolution (101 vs 201 points) and fixed-effects regression analysis are performed.
+
+### Advanced Analyses
+
+6.  **Mobility Validation** (`analysis/mobility_validation.py`): Cross-references the H₀ gap with Chetty et al. (2014) state-level absolute upward mobility estimates. Computes Pearson, Spearman, and partial correlations (controlling for Gini) to test whether the topological gap metric captures economically meaningful variation beyond traditional inequality measures.
+
+7.  **Genuine Multivariate TDA** (`analysis/genuine_tda.py`): Applies proper persistent homology (via GUDHI) to multivariate state-level feature vectors (gap, Gini, Theil, gap location, birth/death income). Computes Vietoris-Rips H₀ and H₁ persistence diagrams per year, then measures topological drift over time via Wasserstein distances between persistence diagrams.
+
+8.  **Wasserstein Distance Analysis** (`analysis/wasserstein_analysis.py`): Computes the Earth Mover's Distance (Wasserstein-1) between full income distributions, measuring distributional shape change that scalar metrics miss. Includes year-over-year drift, cross-state distance matrices, and MDS embeddings.
+
+9.  **Mapper Graph** (`analysis/mapper_graph.py`): Constructs a Mapper graph (a core TDA visualization tool) from multivariate inequality features, revealing the topological structure of how US states cluster in "inequality space" and how those clusters evolve over time. Coloured by Census region to identify geographic patterns.
 
 ## Setup & Installation
 
@@ -128,6 +144,14 @@ Ensure you are in the project's root directory and the virtual environment (if u
 * **Run Bin Sensitivity Analysis:** (Requires pipeline results for *both* 101 and 201 points)
     ```bash
     make sens
+    ```
+* **Run Advanced Analyses:** (Requires pipeline results and processed data)
+    ```bash
+    make advanced       # runs all four advanced analyses
+    make mobility       # Chetty mobility validation
+    make tda            # genuine multivariate TDA
+    make wasserstein    # Wasserstein distance analysis
+    make mapper         # Mapper graph
     ```
 * **Launch Dashboard:** (Requires pipeline results)
     ```bash

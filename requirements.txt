@@ -12,6 +12,12 @@ requests>=2.28.0
 # TDA / Persistent Homology
 persim>=0.3.8
 scikit-learn>=1.5.0
+gudhi>=3.8.0
+kmapper>=2.0.1
+
+# Optimal Transport & Distance Metrics
+scipy>=1.10.0
+POT>=0.9.0
 
 # Plotting
 matplotlib>=3.6.0
