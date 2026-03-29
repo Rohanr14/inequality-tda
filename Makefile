@@ -53,6 +53,9 @@ temporal:
 crossoutcome:
 	$(PIP_ACT) && $(RUN) -m analysis.cross_outcome_validation
 
-advanced: mobility tda wasserstein mapper temporal crossoutcome
+financial:
+	$(PIP_ACT) && $(RUN) -m analysis.financial_signal
+
+advanced: mobility tda wasserstein mapper temporal crossoutcome financial
 
 demo: env process analyse plots dashboard
