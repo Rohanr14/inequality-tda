@@ -1,0 +1,47 @@
+======================================================================
+MOBILITY VALIDATION: H₀ Gap vs Chetty Upward Mobility
+======================================================================
+States matched: 51
+
+--- Bivariate Correlations ---
+  Pearson  r = -0.3091  (p = 2.7308e-02)
+  Spearman ρ = -0.5535  (p = 2.5184e-05)
+
+--- Partial Correlation (controlling for Gini) ---
+  r(gap, mobility | Gini) = 0.6324  (p = 6.4154e-07)
+
+--- OLS: mobility ~ gap + gini ---
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     absolute_upward_mobility   R-squared:                       0.705
+Model:                                  OLS   Adj. R-squared:                  0.693
+Method:                       Least Squares   F-statistic:                     57.48
+Date:                      Sat, 21 Mar 2026   Prob (F-statistic):           1.82e-13
+Time:                              18:06:54   Log-Likelihood:                -63.620
+No. Observations:                        51   AIC:                             133.2
+Df Residuals:                            48   BIC:                             139.0
+Df Model:                                 2                                         
+Covariance Type:                  nonrobust                                         
+=================================================================================
+                    coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------
+Intercept        58.5416      1.562     37.482      0.000      55.401      61.682
+mean_gap_real  1.758e-07   3.11e-08      5.656      0.000    1.13e-07    2.38e-07
+gini            -25.9366      2.602     -9.970      0.000     -31.167     -20.706
+==============================================================================
+Omnibus:                       14.715   Durbin-Watson:                   1.863
+Prob(Omnibus):                  0.001   Jarque-Bera (JB):               28.816
+Skew:                          -0.757   Prob(JB):                     5.53e-07
+Kurtosis:                       6.357   Cond. No.                     2.83e+08
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.83e+08. This might indicate that there are
+strong multicollinearity or other numerical problems.
+
+Interpretation:
+  A significant negative correlation between the H₀ gap and upward
+  mobility would suggest that topological income stratification is
+  associated with reduced economic opportunity — validating the gap
+  metric as economically meaningful beyond what Gini alone captures.

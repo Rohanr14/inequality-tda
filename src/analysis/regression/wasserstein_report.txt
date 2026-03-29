@@ -1,0 +1,33 @@
+======================================================================
+WASSERSTEIN DISTANCE ANALYSIS
+======================================================================
+States: 51  |  Years: 2010–2023
+
+--- Year-over-Year National Drift (W₁, nominal $) ---
+  2010→2011: mean=13,988  median=8,770  sd=19,694
+  2011→2012: mean=9,154  median=6,917  sd=9,167
+  2012→2013: mean=12,786  median=8,131  sd=13,177
+  2013→2014: mean=13,011  median=9,074  sd=12,679
+  2014→2015: mean=16,472  median=8,561  sd=47,339
+  2015→2016: mean=14,387  median=11,389  sd=13,900
+  2016→2017: mean=13,570  median=8,791  sd=15,773
+  2017→2018: mean=15,250  median=10,716  sd=12,750
+  2018→2019: mean=17,506  median=14,242  sd=16,191
+  2019→2020: mean=18,892  median=11,178  sd=27,062
+  2020→2021: mean=24,147  median=13,557  sd=28,301
+  2021→2022: mean=25,841  median=16,123  sd=32,399
+  2022→2023: mean=20,486  median=14,495  sd=21,031
+
+--- Largest Cumulative Distributional Shift (2010→2023) ---
+  California: W₁ = $317,969
+  New York: W₁ = $297,272
+  New Jersey: W₁ = $256,080
+  Massachusetts: W₁ = $236,061
+  Connecticut: W₁ = $213,986
+
+--- Smallest Cumulative Distributional Shift (2010→2023) ---
+  Kansas: W₁ = $40,434
+  Iowa: W₁ = $37,089
+  Nebraska: W₁ = $36,478
+  South Dakota: W₁ = $35,431
+  Vermont: W₁ = $33,105

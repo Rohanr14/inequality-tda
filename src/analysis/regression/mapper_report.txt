@@ -1,0 +1,39 @@
+======================================================================
+MAPPER GRAPH ANALYSIS
+======================================================================
+Input: 714 state-year observations, 6 features
+Mapper graph: 48 nodes, 127 edges
+Cover: 15 cubes, 40% overlap
+Clusterer: DBSCAN(eps=0.8, min_samples=3)
+
+--- Node Size Distribution ---
+  Min members: 4
+  Max members: 154
+  Mean members: 40.1
+  Median members: 20.5
+
+--- Regional Composition of Mapper Nodes (top 5 largest) ---
+  Node cube14_cluster0 (154 members, years 2010–2023):
+    South: 62
+    Midwest: 51
+    West: 27
+    Northeast: 14
+  Node cube20_cluster0 (143 members, years 2010–2023):
+    South: 72
+    Midwest: 32
+    West: 24
+    Northeast: 15
+  Node cube21_cluster0 (140 members, years 2010–2023):
+    South: 112
+    West: 17
+    Midwest: 9
+    Northeast: 2
+  Node cube7_cluster0 (133 members, years 2010–2023):
+    West: 57
+    Midwest: 48
+    Northeast: 24
+    South: 4
+  Node cube2_cluster0 (129 members, years 2010–2023):
+    Midwest: 67
+    West: 40
+    Northeast: 22
