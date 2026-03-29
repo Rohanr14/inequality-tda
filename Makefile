@@ -47,6 +47,12 @@ wasserstein:
 mapper:
 	$(PIP_ACT) && $(RUN) -m analysis.mapper_graph
 
-advanced: mobility tda wasserstein mapper
+temporal:
+	$(PIP_ACT) && $(RUN) -m analysis.temporal_holdout
+
+crossoutcome:
+	$(PIP_ACT) && $(RUN) -m analysis.cross_outcome_validation
+
+advanced: mobility tda wasserstein mapper temporal crossoutcome
 
 demo: env process analyse plots dashboard

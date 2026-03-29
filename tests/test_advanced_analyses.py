@@ -86,3 +86,47 @@ class TestMobilityData:
         assert "District of Columbia" in df['state'].values
         assert "California" in df['state'].values
         assert "Wyoming" in df['state'].values
+
+
+class TestTemporalHoldout:
+    def test_period_gap(self):
+        from analysis.temporal_holdout import _period_gap
+        ts = pd.DataFrame({
+            "year": [2010, 2011, 2018, 2019] * 2,
+            "state": ["A"] * 4 + ["B"] * 4,
+            "acs_longest_h0_lifespan_real": [100, 200, 300, 400, 500, 600, 700, 800],
+        })
+        early = _period_gap(ts, 2010, 2016)
+        assert len(early) == 2
+        assert early.loc[early["state"] == "A", "mean_gap_real"].values[0] == 150.0
+        assert early.loc[early["state"] == "B", "mean_gap_real"].values[0] == 550.0
+
+    def test_partial_corr_uncorrelated(self):
+        from analysis.temporal_holdout import _partial_corr
+        rng = np.random.default_rng(42)
+        z = rng.normal(0, 1, 100)
+        x = z + rng.normal(0, 0.01, 100)
+        y = z + rng.normal(0, 0.01, 100)
+        r, p = _partial_corr(x, y, z)
+        # After removing z's effect, residuals should have near-zero correlation
+        assert abs(r) < 0.5
+
+
+class TestCrossOutcomeValidation:
+    def test_fallback_outcomes_load(self):
+        from analysis.cross_outcome_validation import _FALLBACK_OUTCOMES
+        assert len(_FALLBACK_OUTCOMES) == 51  # 50 states + DC
+        assert "California" in _FALLBACK_OUTCOMES
+        assert "District of Columbia" in _FALLBACK_OUTCOMES
+        # Poverty rates should be in plausible range
+        for state, (pov, med) in _FALLBACK_OUTCOMES.items():
+            assert 0 < pov < 30, f"{state} poverty rate {pov} out of range"
+            assert 30000 < med < 120000, f"{state} median income {med} out of range"
+
+    def test_outcomes_csv_created(self):
+        """Loading outcomes should create the CSV if absent."""
+        from analysis.cross_outcome_validation import _load_outcomes
+        df = _load_outcomes()
+        assert len(df) == 51
+        assert "poverty_rate" in df.columns
+        assert "median_income" in df.columns
