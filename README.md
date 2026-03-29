@@ -91,6 +91,8 @@ The project includes:
 
 11. **Cross-Outcome Validation** (`analysis/cross_outcome_validation.py`): Validates the H₀ gap against multiple independent economic outcomes — poverty rate (SAIPE 2019), median household income (ACS 2019), and Chetty mobility — computing partial correlations controlling for Gini. Significant results across diverse outcomes strengthen the claim that the gap captures a fundamental structural dimension of inequality beyond traditional scalar metrics.
 
+12. **Financial Signal: Cross-Sectional Return Gap** (`analysis/financial_signal.py`): Applies the same H₀ gap methodology to financial markets using Ken French 49 Industry Portfolios (free, 1963–present). Each month, the largest gap between adjacent sorted industry returns is computed as a regime indicator. Includes predictive regressions against future market volatility (with partial correlation controlling for naive dispersion), a quintile return analysis, and a fully out-of-sample volatility-timing backtest with equity curves and Sharpe ratios.
+
 ## Setup & Installation
 
 1.  **Prerequisites:**
@@ -158,6 +160,7 @@ Ensure you are in the project's root directory and the virtual environment (if u
     make mapper         # Mapper graph
     make temporal       # temporal holdout validation
     make crossoutcome   # cross-outcome validation (poverty, income, mobility)
+    make financial      # financial TDA signal (Ken French 49 industries)
     ```
 * **Launch Dashboard:** (Requires pipeline results)
     ```bash

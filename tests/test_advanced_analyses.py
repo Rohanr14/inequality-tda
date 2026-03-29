@@ -130,3 +130,43 @@ class TestCrossOutcomeValidation:
         assert len(df) == 51
         assert "poverty_rate" in df.columns
         assert "median_income" in df.columns
+
+
+class TestFinancialSignal:
+    def test_compute_signals_basic(self):
+        """H₀ gap on synthetic industry returns."""
+        from analysis.financial_signal import compute_signals
+        dates = pd.date_range("2020-01-31", periods=3, freq="ME")
+        # 10 fake industries: uniform returns except one outlier
+        data = {}
+        for i in range(10):
+            data[f"Ind{i}"] = [1.0 * i, 0.5 * i, -0.3 * i]
+        df = pd.DataFrame(data, index=dates)
+        signals = compute_signals(df)
+        assert len(signals) == 3
+        assert "h0_gap" in signals.columns
+        assert "dispersion" in signals.columns
+        assert (signals["h0_gap"] >= 0).all()
+
+    def test_gap_detects_bimodal(self):
+        """Gap should be larger for bimodal vs uniform returns."""
+        from analysis.financial_signal import compute_signals
+        dates = pd.date_range("2020-01-31", periods=2, freq="ME")
+        # Month 1: uniform spread (0, 1, 2, ..., 9)
+        uniform = {f"I{i}": [float(i), 0.0] for i in range(10)}
+        # Month 2: bimodal cluster (0,0,0,0,0, 10,10,10,10,10)
+        bimodal = {f"I{i}": [0.0, 0.0 if i < 5 else 10.0] for i in range(10)}
+        data = {k: [uniform[k][0], bimodal[k][1]] for k in uniform}
+        df = pd.DataFrame(data, index=dates)
+        signals = compute_signals(df)
+        assert signals.iloc[1]["h0_gap"] > signals.iloc[0]["h0_gap"]
+
+    def test_partial_corr(self):
+        from analysis.financial_signal import _partial_corr
+        rng = np.random.default_rng(99)
+        z = rng.normal(0, 1, 200)
+        x = 2 * z + rng.normal(0, 0.1, 200)
+        y = -z + rng.normal(0, 0.1, 200)
+        r, p = _partial_corr(x, y, z)
+        # After removing z, residuals should be near-uncorrelated
+        assert abs(r) < 0.3
