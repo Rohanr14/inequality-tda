@@ -87,6 +87,10 @@ The project includes:
 
 9.  **Mapper Graph** (`analysis/mapper_graph.py`): Constructs a Mapper graph (a core TDA visualization tool) from multivariate inequality features, revealing the topological structure of how US states cluster in "inequality space" and how those clusters evolve over time. Coloured by Census region to identify geographic patterns.
 
+10. **Temporal Holdout Validation** (`analysis/temporal_holdout.py`): Splits the time series into early (2010-2016) and late (2017-2023) periods to test whether H₀ gaps computed from early years predict Chetty mobility out-of-sample. Also measures gap ranking stability across periods to confirm the topological signal is persistent, not an artefact of a single cross-section.
+
+11. **Cross-Outcome Validation** (`analysis/cross_outcome_validation.py`): Validates the H₀ gap against multiple independent economic outcomes — poverty rate (SAIPE 2019), median household income (ACS 2019), and Chetty mobility — computing partial correlations controlling for Gini. Significant results across diverse outcomes strengthen the claim that the gap captures a fundamental structural dimension of inequality beyond traditional scalar metrics.
+
 ## Setup & Installation
 
 1.  **Prerequisites:**
@@ -147,11 +151,13 @@ Ensure you are in the project's root directory and the virtual environment (if u
     ```
 * **Run Advanced Analyses:** (Requires pipeline results and processed data)
     ```bash
-    make advanced       # runs all four advanced analyses
+    make advanced       # runs all advanced analyses
     make mobility       # Chetty mobility validation
     make tda            # genuine multivariate TDA
     make wasserstein    # Wasserstein distance analysis
     make mapper         # Mapper graph
+    make temporal       # temporal holdout validation
+    make crossoutcome   # cross-outcome validation (poverty, income, mobility)
     ```
 * **Launch Dashboard:** (Requires pipeline results)
     ```bash
